@@ -4,6 +4,12 @@
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:title="System Config"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_wipe"
+        android:orderInCategory="101"
+        android:title="Quick Wipe"
         app:showAsAction="never" />
 </menu>

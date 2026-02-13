@@ -1,21 +1,40 @@
 package com.example.silentguardian
 
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
+import android.net.wifi.WifiManager
+import android.util.Log
 
 class ContextManager(private val context: Context) {
 
-    // Define your "Home" or "Safe" Wi-Fi name here
-    private val trustedSSID = "My_Home_WiFi"
-
     fun isTrustedEnvironment(): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork ?: return false
-        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        val sharedPref = context.getSharedPreferences("SilentGuardianVault", Context.MODE_PRIVATE)
+        val trustedSSID = sharedPref.getString("trusted_ssid", "") ?: ""
 
-        // This checks if we are on Wi-Fi.
-        // For advanced marks, we check if the connection is "Validated" (working internet)
-        return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        if (trustedSSID.isEmpty()) return false
+
+        // Removing quotes is critical as Android returns SSIDs wrapped in ""
+        val currentSSID = getCurrentWifiSSID().replace("\"", "").trim()
+        val cleanTrusted = trustedSSID.replace("\"", "").trim()
+
+        Log.d("VaultSecurity", "Comparing: Current[$currentSSID] vs Trusted[$cleanTrusted]")
+
+        if (currentSSID == "<unknown ssid>" || currentSSID == "unknown_network") {
+            return false
+        }
+
+        return currentSSID.equals(cleanTrusted, ignoreCase = true)
+    }
+
+    /**
+     * Function is now PUBLIC so HomeFragment can use it for UI updates.
+     */
+    fun getCurrentWifiSSID(): String {
+        return try {
+            val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            val info = wifiManager.connectionInfo
+            info.ssid ?: "unknown_network"
+        } catch (e: Exception) {
+            "error_retrieving"
+        }
     }
 }

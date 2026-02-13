@@ -22,4 +22,10 @@
         android:name="com.example.silentguardian.ui.slideshow.SlideshowFragment"
         android:label="@string/menu_slideshow"
         tools:layout="@layout/fragment_slideshow" />
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.example.silentguardian.ui.settings.SettingsFragment"
+        android:label="Access Config"
+        tools:layout="@layout/fragment_settings" />
 </navigation>
